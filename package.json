@@ -1,0 +1,16 @@
+{
+   "name":              "subscribable",
+   "description":       "Lightweight library for adding pub sub to any application on the server and in the client",
+   "version":           "0.0.1",
+   "author":            "Steve King <steve@mydev.co>",
+   "contributors":      [ { "name": "Steve King", "email": "steve@mydev.co" } ],
+   "dependencies":      {},
+   "devDependencies":   {},
+   "keywords":          ["pubsub", "events", "event handling", "callbacks"],
+   "repository":        "git://github.com/steveukx/Subscribable",
+   "main":              "index",
+   "bin":               {},
+   "scripts":           {},
+   "config":            {},
+   "engines":           { "node": ">= 0.4.1" }
+}
