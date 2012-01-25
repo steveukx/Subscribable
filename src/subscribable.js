@@ -25,6 +25,7 @@ var Subscribable = (function () {
       subscribable.on = Subscribable.on;
       subscribable.un = Subscribable.un;
       subscribable.fire = Subscribable.fire;
+      subscribable.hasListener = Subscribable.hasListener;
    };
 
    /**
@@ -60,6 +61,16 @@ var Subscribable = (function () {
     */
    Subscribable.prototype.fire = function() {
       return true;
+   };
+
+   /**
+    * Checks for whether there are any listeners for the supplied event type, where the event type can either be the
+    * string name of an event or an event constructor.
+    *
+    * @param {String|Function} eventType
+    */
+   Subscribable.prototype.hasListener = function(eventType) {
+      return false;
    };
 
    /**
@@ -233,6 +244,25 @@ var Subscribable = (function () {
             instance.__handlers[handlerId] = null;
          }
       }
+   };
+
+   /**
+    *
+    * @param eventType
+    */
+   Subscribable.hasListener = function(eventType) {
+      var eventName = ('' + eventType).toLowerCase(),
+          handlerIds = this.__events[eventName];
+
+      if(handlerIds) {
+         for(var i = 0, l = handlerIds.length; i < l; i++) {
+            if(this.__handlers[handlerIds[i]]) {
+               return true;
+            }
+         }
+      }
+
+      return false;
    };
 
    return Subscribable;
