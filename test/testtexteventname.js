@@ -19,16 +19,11 @@ TestCase("stringEventNames", {
    },
 
    "test can use an object that has a constructor level toString that returns an event name":function () {
-      function SomeEvent() {}
-      SomeEvent.toString = function() {
-         return 'namedEvent';
-      };
-
       var sub = new Subscribable();
       var stubHandler = sinon.spy(function() {});
 
-      sub.on('NamedEvent', stubHandler);
-      sub.fire( SomeEvent );
+      sub.on('someNamedEvent', stubHandler);
+      sub.fire( SomeNamedEvent );
       assertEquals(1, stubHandler.callCount);
    }
 

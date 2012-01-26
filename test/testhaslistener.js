@@ -8,15 +8,17 @@ TestCase("HasListener", {
    },
 
    "test can check for existence of listeners by event constructor":function () {
-      function SomeEvent() {}
-      SomeEvent.toString = function() {
-         return 'namedEvent';
-      };
-
       var sub = new Subscribable();
 
-      sub.on('namedEvent', function() {});
-      assertEquals(true, sub.hasListener(SomeEvent));
+      sub.on('someNamedEvent', function() {});
+      assertEquals(true, sub.hasListener(SomeNamedEvent));
+   },
+
+   "test can check for existence of listeners attached by event constructor":function () {
+      var sub = new Subscribable();
+
+      sub.on(SomeNamedEvent, function() {});
+      assertEquals(true, sub.hasListener(SomeNamedEvent));
    }
 
 });

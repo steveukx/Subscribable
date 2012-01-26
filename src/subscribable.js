@@ -132,7 +132,7 @@ var Subscribable = (function () {
     */
    Subscribable._saveHandler = function(instance, handler, scope, eventList) {
       var handlerId = instance.__handlers.length;
-      instance.__handlers.push( [handler, scope] );
+      instance.__handlers.push( [handler, scope, handlerId] );
       eventList.push(handlerId);
 
       return handlerId;
@@ -153,8 +153,13 @@ var Subscribable = (function () {
    };
 
    /**
+    * Remove handlers for the specified selector - the selector type can either be a number (which is the ID of a single
+    * handler and is the result of using the .on method), a string event name (which is the same string used as the event
+    * name in the .on method), the Function constructor of an event object (that has a .toString method to return the
+    * name of the associated event) or an object that is the scope of a handler (in which case, any handler for any
+    * event that uses that object as the scope will be removed).
     *
-    * @param {Object|String|Number} un
+    * @param {Object|String|Number|Function} un
     * @param {Object} [scopeCheck]
     */
    Subscribable.un = function(un, scopeCheck) {
@@ -165,6 +170,7 @@ var Subscribable = (function () {
             break;
 
          case 'string':
+         case 'function':
             un = ('' + un).toLowerCase();
             Subscribable.removeMultipleEvents(this,
                Subscribable._getHandlersList(this, un, false), scopeCheck);
@@ -175,7 +181,7 @@ var Subscribable = (function () {
 
          default:
             if(un) {
-               Subscribable.removeMultipleEvents(this, this.__handlers, un || null);
+               Subscribable.removeMultipleHandlers(this, this.__handlers, un || null);
                Subscribable.consolidateEvents(this);
             }
             else {
@@ -226,6 +232,24 @@ var Subscribable = (function () {
    Subscribable.removeMultipleEvents = function(instance, handlerList, scopeCheck) {
       for(var i = 0, l = handlerList.length; i < l; i++) {
          Subscribable.removeSingleEvent(instance, handlerList[i], scopeCheck);
+      }
+   };
+
+   /**
+    * Attempts to nullify the supplied handlers (note that in this case the handler array is the list of actual handlers
+    * rather than their handler ID values). If the optional scopeCheck parameter is supplied, each handler will only be
+    * nullified when the scope it was attached with the same entity as the scopeCheck.
+    *
+    * @param {Subscribable} instance
+    * @param {Object[]} handlers
+    * @param {Object} [scopeCheck]
+    */
+   Subscribable.removeMultipleHandlers = function(instance, handlers, scopeCheck) {
+      var handler;
+      for(var i = 0, l = handlers.length; i < l; i++) {
+         if(handler = handlers[i]) {
+            Subscribable.removeSingleEvent(instance, handler[2], scopeCheck);
+         }
       }
    };
 
