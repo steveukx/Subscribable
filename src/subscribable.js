@@ -67,7 +67,9 @@ var Subscribable = (function () {
     * Checks for whether there are any listeners for the supplied event type, where the event type can either be the
     * string name of an event or an event constructor.
     *
-    * @param {String|Function} eventType
+    * When the eventType parameter is omitted, the method will check for a handler against any event type.
+    *
+    * @param {String|Function} [eventType]
     */
    Subscribable.prototype.hasListener = function(eventType) {
       return false;
@@ -272,13 +274,21 @@ var Subscribable = (function () {
 
    /**
     *
-    * @param eventType
+    * @param {String|Function} [eventType]
     */
    Subscribable.hasListener = function(eventType) {
-      var eventName = ('' + eventType).toLowerCase(),
-          handlerIds = this.__events[eventName];
+      var handlers, handlerIds, i, l;
 
-      if(handlerIds) {
+      if(eventType === undefined) {
+         handlers = this.__handlers;
+         for(i = 0, l = handlers.length; i < l; i++) {
+            if(!!handlers[i]) {
+               return true;
+            }
+         }
+      }
+
+      else if(handlerIds = this.__events[('' + eventType).toLowerCase()]) {
          for(var i = 0, l = handlerIds.length; i < l; i++) {
             if(this.__handlers[handlerIds[i]]) {
                return true;
