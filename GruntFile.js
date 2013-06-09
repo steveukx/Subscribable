@@ -13,22 +13,19 @@ module.exports = function(grunt) {
          }
       },
 
-      requirejs: {
-         compile: {
-            options: {
-                 out: "./dist/<%= pkg.version %>/<%= pkg.name %>.js"
-               , name: "subscribable"
-               , baseUrl: "src/"
-               , optimize: "none"
-            }
+      copy: {
+         main: {
+            files: [
+               {expand: false, src: ['src/subscribable.js'], dest: 'dist/<%= pkg.version %>/<%= pkg.name %>.js'}
+            ]
          }
       }
    });
 
    grunt.loadNpmTasks('grunt-contrib-uglify');
-   grunt.loadNpmTasks('grunt-contrib-requirejs');
+   grunt.loadNpmTasks('grunt-contrib-copy');
 
    // Default task(s).
-   grunt.registerTask('default', ['requirejs', 'uglify']);
+   grunt.registerTask('default', ['copy', 'uglify']);
 
 };

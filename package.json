@@ -1,7 +1,7 @@
 {
   "name": "subscribable",
   "description": "Lightweight library for adding pub sub to any application on the server and in the client",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "author": "Steve King <steve@mydev.co>",
   "contributors": [
     {
@@ -14,7 +14,7 @@
     "requirejs": "~2.1.6",
     "grunt": "~0.4.1",
     "unit-test": "0.0.6",
-    "grunt-contrib-requirejs": "~0.4.1",
+    "grunt-contrib-copy": "~0.4.1",
     "grunt-contrib-uglify": "~0.2.2"
   },
   "keywords": [

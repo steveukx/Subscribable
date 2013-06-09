@@ -1,18 +1,18 @@
 /**
  * @exports Subscribable
  */
-(function (root, Subscribable) {
+(function (root, subscribableFactory) {
    if(typeof module !== "undefined" && module.exports) { // Node.js
-      module.exports = Subscribable();
+      module.exports = subscribableFactory();
    }
    else  if (typeof exports === "object" && exports) { // CommonJS
-      exports.Subscribable = Subscribable();
+      exports.Subscribable = subscribableFactory();
    }
    else  if (typeof define === "function" && define.amd) { // AMD
-      define(Subscribable);
+      define(subscribableFactory);
    }
    else { // <script>
-      root.Subscribable = Subscribable();
+      root.Subscribable = subscribableFactory();
    }
 }(this, function () {
 
@@ -319,4 +319,4 @@
 
    return Subscribable;
 
-}()));
+}));
