@@ -1,3 +1,4 @@
+
 /**
  * @exports Subscribable
  */
@@ -9,14 +10,14 @@
       exports.Subscribable = Subscribable;
    }
    else  if (typeof define === "function" && define.amd) { // AMD
-      define(Subscribable);
+      define('subscribable',Subscribable);
    }
    else { // <script>
       root.Subscribable = Subscribable;
    }
 }(this, function () {
 
-   "use strict";
+   
 
    /**
     * The Subscribable class is the underlying component in a pub/sub application providing the ability

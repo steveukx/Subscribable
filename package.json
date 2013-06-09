@@ -1,16 +1,37 @@
 {
-   "name":              "subscribable",
-   "description":       "Lightweight library for adding pub sub to any application on the server and in the client",
-   "version":           "0.0.5",
-   "author":            "Steve King <steve@mydev.co>",
-   "contributors":      [ { "name": "Steve King", "email": "steve@mydev.co" } ],
-   "dependencies":      {},
-   "devDependencies":   {},
-   "keywords":          ["pubsub", "events", "event handling", "callbacks"],
-   "repository":        "git://github.com/steveukx/Subscribable",
-   "main":              "index",
-   "bin":               {},
-   "scripts":           {},
-   "config":            {},
-   "engines":           { "node": ">= 0.4.1" }
+  "name": "subscribable",
+  "description": "Lightweight library for adding pub sub to any application on the server and in the client",
+  "version": "0.0.6",
+  "author": "Steve King <steve@mydev.co>",
+  "contributors": [
+    {
+      "name": "Steve King",
+      "email": "steve@mydev.co"
+    }
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "requirejs": "~2.1.6",
+    "grunt": "~0.4.1",
+    "unit-test": "0.0.6",
+    "grunt-contrib-requirejs": "~0.4.1",
+    "grunt-contrib-uglify": "~0.2.2"
+  },
+  "keywords": [
+    "pubsub",
+    "events",
+    "event handling",
+    "callbacks",
+    "emitter",
+    "event",
+    "subscription"
+  ],
+  "repository": "git://github.com/steveukx/Subscribable",
+  "main": "src/subscribable",
+  "bin": {},
+  "scripts": {},
+  "config": {},
+  "engines": {
+    "node": ">= 0.4.1"
+  }
 }

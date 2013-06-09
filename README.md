@@ -3,6 +3,16 @@
 The Subscribable microframework is a library that provides the basis of a pub-sub event framework for JavaScript running
 either in the browser or a NodeJS Server.
 
+Integrating with Subscribable
+=============================
+
+To use in [Node.js](http://nodejs.org), easiest installation is through [NPM](http://npmjs.org):
+
+    npm install subscribable
+
+To use in the browser, download the latest released version from https://github.com/steveukx/Subscribable/tree/master/dist
+which can be loaded either as the `src` of a `script` tag, or as a module using [requirejs](http://requirejs.org).
+
 # Usage
 
 Install using `npm install subscribable`

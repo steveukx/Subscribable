@@ -1,4 +1,3 @@
-
 function SomeNamedEvent() {}
 SomeNamedEvent.toString = function() {
    return 'someNamedEvent';
@@ -19,7 +18,7 @@ function thisSpy(spy) {
 
    assertion.wasCalledWithArguments = function() {
       var expectedArgs = Array.prototype.slice.call(arguments, 0)
-         ,actualArgs = spy.args[0];
+          ,actualArgs = spy.args[0];
 
       return JSON.stringify(spy.args[0]) == JSON.stringify(expectedArgs);
    };
@@ -42,3 +41,8 @@ function thisSpy(spy) {
 
    return assertion;
 }
+
+global.SomeNamedEvent = SomeNamedEvent;
+global.AnotherEvent = AnotherEvent;
+global.thisSpy = thisSpy;
+global.Subscribable = require('../src/subscribable');
