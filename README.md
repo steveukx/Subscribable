@@ -15,8 +15,6 @@ which can be loaded either as the `src` of a `script` tag, or as a module using 
 
 # Usage
 
-Install using `npm install subscribable`
-
 Objects are made subscribable either by inheriting from the Subscribable prototype or by explicitly calling
 `Subscribable.prepareInstance` for the object to attach the standard pub-sub methods to the object instance.
 
