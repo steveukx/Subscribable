@@ -1,7 +1,7 @@
 {
   "name": "subscribable",
   "description": "Lightweight library for adding pub sub to any application on the server and in the client",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "author": "Steve King <steve@mydev.co>",
   "contributors": [
     {

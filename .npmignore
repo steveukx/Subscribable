@@ -1,8 +1,8 @@
-.idea*
-.git*
-jsTestDriver.conf
+.idea/
+.git/
+dist/
+node_modules/
 test/
-test-lib/
 .DS_Store
 Thumbs.db
-node_modules/
+*.log
