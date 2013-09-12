@@ -4,6 +4,37 @@ var Assertions = require('unit-test').Assertions,
 
 module.exports = new TestCase("RemoveHandlers", {
 
+   "test trailing handlers consolidated on unsubscribe": function() {
+      var sub = new Subscribable();
+      Assertions.assertEquals(0, sub.on('foo', Sinon.spy()));
+      Assertions.assertEquals(1, sub.on('foo', Sinon.spy()));
+
+      sub.un(0);
+      Assertions.assertEquals(2, sub.on('foo', Sinon.spy()));
+
+      sub.un(0); // look, no error thrown
+      sub.un(1); // is a handler, no consolidation
+      sub.un(2); // is a handler, leaves trailing events to remove
+      Assertions.assertEquals(0, sub.on('foo', Sinon.spy()));
+   },
+
+   "test handlers consolidated when removing single handler if no events remain": function() {
+      var sub = new Subscribable();
+      Assertions.assertEquals(0, sub.on('foo', Sinon.spy()));
+
+      sub.un(0);
+      Assertions.assertEquals(0, sub.on('foo', Sinon.spy()));
+   },
+
+   "test handlers not consolidated when removing single handler if other events remain": function() {
+      var sub = new Subscribable();
+      Assertions.assertEquals(0, sub.on('foo', Sinon.spy()));
+      Assertions.assertEquals(1, sub.on('foo', Sinon.spy()));
+
+      sub.un(0);
+      Assertions.assertEquals(2, sub.on('foo', Sinon.spy()));
+   },
+
    "test able to unsubscribe a single handler":function () {
       var sub = new Subscribable(),
          handler = Sinon.spy( function() {} ),

@@ -149,10 +149,11 @@
     * @param {Function} handler
     * @param {Object} scope
     * @param {Number[]} eventList
+    * @param {String} eventName
     */
-   Subscribable._saveHandler = function(instance, handler, scope, eventList) {
+   Subscribable._saveHandler = function(instance, handler, scope, eventList, eventName) {
       var handlerId = instance.__handlers.length;
-      instance.__handlers.push( [handler, scope, handlerId] );
+      instance.__handlers.push( [handler, scope, handlerId, eventName] );
       eventList.push(handlerId);
 
       return handlerId;
@@ -169,7 +170,7 @@
     * @return {Number}
     */
    Subscribable.on = function(eventName, handler, scope) {
-      return Subscribable._saveHandler(this, handler, scope, Subscribable._getHandlersList(this, eventName, true));
+      return Subscribable._saveHandler(this, handler, scope, Subscribable._getHandlersList(this, eventName, true), String(eventName).toLowerCase());
    };
 
    /**
@@ -186,14 +187,16 @@
       var typeofRemoval = typeof un;
       switch(typeofRemoval) {
          case 'number':
-            Subscribable.removeSingleEvent(this, un, scopeCheck);
+            un = Subscribable.removeSingleEvent(this, un, scopeCheck);
+            if(!this.hasListener(un)) {
+               Subscribable.consolidateEvents(this, un);
+            }
             break;
 
          case 'string':
          case 'function':
             un = ('' + un).toLowerCase();
-            Subscribable.removeMultipleEvents(this,
-               Subscribable._getHandlersList(this, un, false), scopeCheck);
+            Subscribable.removeMultipleEvents(this, Subscribable._getHandlersList(this, un, false), scopeCheck);
             if(scopeCheck) {
                Subscribable.consolidateEvents(this, un);
             }
@@ -216,12 +219,13 @@
     * Consolidates the handler IDs registered for the supplied named event; when the event name is not specified
     * all event containers will be consolidated.
     *
+    * @param {Subscribable} instance
     * @param {String} [eventName]
     */
    Subscribable.consolidateEvents = function(instance, eventName) {
-      if(!arguments.length) {
-         for(var eventName in instance.__events) {
-            Subscribable.consolidateEvents(eventName);
+      if(arguments.length === 1) {
+         for(eventName in instance.__events) {
+            Subscribable.consolidateEvents(instance, eventName);
          }
       }
 
@@ -237,6 +241,11 @@
 
       if(handlerList && !handlerList.length) {
          delete instance.__events[eventName];
+      }
+
+      var handlers = instance.__handlers;
+      while(handlers.length && !handlers[handlers.length - 1]) {
+         handlers.pop();
       }
    };
 
@@ -283,11 +292,14 @@
     * @param {Object} [scopeCheck]
     */
    Subscribable.removeSingleEvent = function(instance, handlerId, scopeCheck) {
+      var handler;
       if(instance.__handlers[handlerId]) {
          if(!scopeCheck || instance.__handlers[handlerId][1] === scopeCheck) {
+            handler = instance.__handlers[handlerId];
             instance.__handlers[handlerId] = null;
          }
       }
+      return handler && handler[3];
    };
 
    /**

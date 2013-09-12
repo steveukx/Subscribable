@@ -31,7 +31,9 @@
   "repository": "git://github.com/steveukx/Subscribable",
   "main": "src/subscribable",
   "bin": {},
-  "scripts": {},
+  "scripts": {
+     "test": "node test/runner.js"
+  },
   "config": {},
   "engines": {
     "node": ">= 0.4.1"
