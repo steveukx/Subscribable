@@ -15,7 +15,9 @@
     "grunt": "~0.4.1",
     "unit-test": "0.0.6",
     "grunt-contrib-copy": "~0.4.1",
-    "grunt-contrib-uglify": "~0.2.2"
+    "grunt-contrib-uglify": "~0.2.2",
+    "grunt-release-steps": "~0.3.7",
+    "grunt-git": "git+https://github.com/steveukx/grunt-git"
   },
   "keywords": [
     "pubsub",

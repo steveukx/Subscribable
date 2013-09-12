@@ -22,10 +22,17 @@ module.exports = function(grunt) {
       }
    });
 
+   grunt.loadNpmTasks('grunt-release-steps');
+
+   grunt.loadNpmTasks('grunt-git');
+
    grunt.loadNpmTasks('grunt-contrib-uglify');
+
    grunt.loadNpmTasks('grunt-contrib-copy');
 
-   // Default task(s).
    grunt.registerTask('default', ['copy', 'uglify']);
 
+   grunt.registerTask('deploy', ['release:bump:minor', 'default', 'release:add:commit:push:tag:pushTags']);
+
+   grunt.registerTask('publish', ['release:npm']);
 };
