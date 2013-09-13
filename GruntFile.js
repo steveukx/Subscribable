@@ -3,6 +3,17 @@ module.exports = function(grunt) {
    grunt.initConfig({
       pkg: grunt.file.readJSON('package.json'),
 
+      git: {
+         options: {
+            message: "Build release <%= pkg.version %>"
+         },
+         commit: {
+            files: [
+               { src: [ 'dist/<%= pkg.version %>/*' ] }
+            ]
+         }
+      },
+
       uglify: {
          options: {
             banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
@@ -30,9 +41,7 @@ module.exports = function(grunt) {
 
    grunt.loadNpmTasks('grunt-contrib-copy');
 
-   grunt.registerTask('default', ['copy', 'uglify']);
-
-   grunt.registerTask('deploy', ['release:bump:minor', 'default', 'release:add:commit:push:tag:pushTags']);
-
-   grunt.registerTask('publish', ['release:npm']);
+   grunt.registerTask('bump',    ['release:bump:minor']);
+   grunt.registerTask('install', ['copy', 'uglify']);
+   grunt.registerTask('publish', ['git', 'release:add:commit:push:tag:pushTags']);
 };
