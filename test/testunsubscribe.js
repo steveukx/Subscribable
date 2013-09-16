@@ -180,6 +180,36 @@ module.exports = new TestCase("RemoveHandlers", {
 
       Assertions.assertEquals(false, sub.hasListener('foo'));
       Assertions.assertEquals(false, sub.hasListener('bar'));
+   },
+
+   'test unsubscribe by context': function() {
+
+      var sub = new Subscribable();
+
+      var Subscriber = function() {
+         this.callback = Sinon.stub();
+         sub.on("event", this.callback, this)
+      };
+
+      var subscriber1 = new Subscriber();
+      var subscriber2 = new Subscriber();
+
+      sub.fire("event");
+
+      Assertions.assertEquals(1, subscriber1.callback.callCount, "Subscriber 1's callback should have been triggered");
+      Assertions.assertEquals(1, subscriber2.callback.callCount, "Subscriber 2's callback should have been triggered");
+
+      sub.un(null, subscriber1);
+
+      // fails:
+      Assertions.assert(sub.hasListener("event"), "Subscriber 2 should still be listening");
+
+      sub.fire("event");
+
+      Assertions.assertEquals(1, subscriber1.callback.callCount, "Subscriber 1's callback should not have been triggered again");
+
+      // fails:
+      Assertions.assertEquals(2, subscriber2.callback.callCount, "Subscriber 2's callback should have been triggered once more");
    }
 
 });

@@ -203,8 +203,8 @@
             break;
 
          default:
-            if(un) {
-               Subscribable.removeMultipleHandlers(this, this.__handlers, un || null);
+            if(un || scopeCheck) {
+               Subscribable.removeMultipleHandlers(this, this.__handlers, un || scopeCheck || null);
                Subscribable.consolidateEvents(this);
             }
             else {
