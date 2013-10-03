@@ -35,7 +35,6 @@ module.exports = new TestCase("TestHandlers", {
       Assertions.assert(thisSpy(spyHandlerA).wasCalledBefore(spyHandlerB));
    },
 
-
    "test handlers can return false to prevent events from 'bubbling'": function() {
       var spyHandlerA = Sinon.spy(),
           spyHandlerB = Sinon.stub().returns(false),
@@ -49,7 +48,6 @@ module.exports = new TestCase("TestHandlers", {
       sub.fire('foo', 'blah', 'plop', 'woo');
       Assertions.assert(thisSpy(spyHandlerC).wasNotCalled());
    },
-
 
    "test handlers can return false-y values without preventing events from 'bubbling'": function() {
       var spyHandlerA = Sinon.stub().returns(0),
