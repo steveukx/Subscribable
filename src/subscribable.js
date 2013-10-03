@@ -26,7 +26,211 @@
     * @name Subscribable
     */
    function Subscribable() {
+      Subscribable.prepareInstance(this);
    }
+
+   /**
+    * The events object stores the names of the events that have listeners and the numeric IDs of the handlers
+    * that are listening to the events.
+    * @type {Object[]}
+    */
+   Subscribable.prototype.__events = null;
+
+   /**
+    * Checks for whether there are any listeners for the supplied event type, where the event type can either be the
+    * string name of an event or an event constructor.
+    *
+    * When the eventType parameter is omitted, the method will check for a handler against any event type.
+    *
+    * @param {String|Function} [eventType]
+    */
+   Subscribable.hasListener = function(eventType) {
+      var eventName;
+
+      if(arguments.length) {
+         eventName = String(eventType).toLowerCase();
+         return this.__events.hasOwnProperty(eventName) && this.__events[eventName].length > 0;
+      }
+      else {
+         for(eventName in this.__events) {
+            if(this.hasListener(eventName)) {
+               return true;
+            }
+         }
+      }
+
+      return false;
+   };
+
+   /**
+    * Fires an event where the event can be either the string name of an event or an instance of an event class. When
+    * an event instance is used, it should `toString` to the same thing that constructor does so the events match up.
+    *
+    * @param {String|Object} event
+    */
+   Subscribable.fire = function(event) {
+      var typeOfEvent = typeof event;
+      var eventName = String(event && typeOfEvent === 'object' ? event.constructor : event).toLowerCase();
+      var handlers = (this.__events[eventName] || []).slice(0);
+      var eventData = handlers.length ? (typeOfEvent === 'string' ? [].slice.call(arguments, 1) : event) : null;
+
+      for(var i = 0, l = handlers.length; i < l; i++) {
+         var exit = (handlers[i][0].apply(handlers[i][1] || this, eventData) === false);
+         if(handlers[i][2]) {
+            this.un(event, handlers[i][0], handlers[i][1]);
+         }
+         if(exit) {
+            break;
+         }
+      }
+
+      return this;
+   };
+
+   /**
+    * Attach a handler to the named event.
+    *
+    * @param {String|Function} event The string name of an event or the constructor of an event class, when a constructor
+    *                                  it should override the `toString` to return the same string an instance returns
+    * @param {Function} handler
+    * @param {Object} [scope] Optional context scope for the handler to be run in
+    * @param {Boolean} [once=false] limit the handler to only be run on the next time the event fires
+    */
+   Subscribable.on = function(event, handler, scope, once) {
+      return event = String(event).toLowerCase(),
+            (this.__events[event] = this.__events[event] || []).push([handler, scope, !!once]),
+            this;
+   };
+
+   /**
+    * Attach a handler to the named event to run at most once.
+    *
+    * @param {String|Function} event The string name of an event or the constructor of an event class, when a constructor
+    *                                  it should override the `toString` to return the same string an instance returns
+    * @param {Function} handler
+    * @param {Object} [scope] Optional context scope for the handler to be run in
+    */
+   Subscribable.once = function(event, handler, scope) {
+      return this.on(event, handler, scope, false);
+   };
+
+   /**
+    * Removes one or more handlers. Arguments can be supplied as:
+    *
+    * `event`
+    * `handler`
+    * `scope`
+    * `handler`, `scope`
+    * `event`, `handler`
+    * `event`, `scope`
+    * `event`, `handler`, `scope`
+    *
+    * In all cases, the `event` is either the String name of the event, or a Function which when converted to a string
+    * (through standard `.toString`) returns a name that has been used as an event. The `handler` is a function and the
+    * `scope` is an object.
+    *
+    * All parameters are optional and when not supplied they are assumed to be matches for everything, so calling with
+    * no arguments removes all handlers.
+    *
+    * @param [event]
+    * @param [handler]
+    * @param [scope]
+    */
+   Subscribable.un = function(event, handler, scope) {
+      var typeOfEvent = typeof event;
+
+      // check for handling .un(SomeEventConstructor) or .un(SomeEventConstructor, this)
+      if(event !== null && typeOfEvent === 'object' && this.hasListener(event.constructor)) {
+         return this.un(event.constructor.toString(), handler);
+      }
+
+      else if(typeOfEvent === 'function' && this.hasListener(event)) {
+         return this.un(event.toString(), handler);
+      }
+
+      // check for handling either .un(someHandler, this), .un(someHandler) or .un(this)
+      else if(event && typeOfEvent !== "string") {
+         return this.un(null, event, handler);
+      }
+
+      // event is either not there or is a string so make it lower case
+      else {
+         event = event && String(event).toLowerCase();
+      }
+
+      // un-validated removal of events, remove all of them.
+      if(!event && !handler) {
+         for(event in this.__events) {
+            if(this.__events.hasOwnProperty(event)) {
+               delete this.__events[event];
+            }
+         }
+      }
+
+      // single named event removal .un('some.event') or .un(SomeEventConstructor)
+      else if(!handler) {
+         delete this.__events[event];
+      }
+
+      // single selection named event removal .un('some.event', myHandler) or .un('some.event', this)
+      else if(!event) {
+         for(event in this.__events) {
+            if(this.__events.hasOwnProperty(event)) {
+               this.un(event, handler);
+            }
+         }
+      }
+
+      // got an event and at least one other type of search - could be a function or a scope
+      else {
+         var searchIndex  = +(typeof handler !== "function");
+         var includeScope = !searchIndex && !!scope;
+         var handlers     = this.__events[event];
+
+         for(var i = handlers && handlers.length - 1; i >= 0; i--) {
+            if(handlers[i][searchIndex] === handler && (!includeScope || handlers[i][1] === scope)) {
+               handlers.splice(i, 1);
+            }
+         }
+      }
+
+      return this;
+   };
+
+   /**
+    * Flyweight on, prepares the instance for being a Subscribable then attaches the handler
+    */
+   Subscribable.prototype.on = function() {
+      return Subscribable.prepareInstance(this).on.apply(this, arguments);
+   };
+
+   /**
+    * Flyweight once, prepares the instance for being a Subscribable then attaches the handler
+    */
+   Subscribable.prototype.once = function() {
+      return Subscribable.prepareInstance(this).once.apply(this, arguments);
+   };
+
+   /**
+    * Flyweight un, does nothing
+    */
+   Subscribable.prototype.un = function() {
+      return this;
+   };
+
+   /**
+    * Flyweight fire, does nothing
+    */
+   Subscribable.prototype.fire = function() {
+      return this;
+   };
+
+   /**
+    * Flyweight hasListener, always returns false
+    */
+   Subscribable.prototype.hasListener = function() {
+      return false;
+   };
 
    /**
     * Converts any object instance into a Subscribable by applying the interface from Subscribable onto it. Note
@@ -38,295 +242,11 @@
     */
    Subscribable.prepareInstance = function(subscribable) {
       subscribable.__events = {};
-      subscribable.__handlers = [];
       subscribable.on = Subscribable.on;
       subscribable.un = Subscribable.un;
       subscribable.fire = Subscribable.fire;
       subscribable.hasListener = Subscribable.hasListener;
       return subscribable;
-   };
-
-   /**
-    * The events object stores the names of the events that have listeners and the numeric IDs of the handlers
-    * that are listening to the events.
-    * @type {Object[]}
-    */
-   Subscribable.prototype.__events = null;
-
-   /**
-    * The handlers object is an array of handlers that will respond to the events being fired.
-    * @type {Object[]}
-    */
-   Subscribable.prototype.__handlers = null;
-
-   /**
-    *
-    */
-   Subscribable.prototype.on = function() {
-      Subscribable.prepareInstance(this);
-      return this.on.apply(this, arguments);
-   };
-
-   /**
-    *
-    */
-   Subscribable.prototype.un = function() {
-      return this;
-   };
-
-   /**
-    *
-    */
-   Subscribable.prototype.fire = function() {
-      return true;
-   };
-
-   /**
-    * Checks for whether there are any listeners for the supplied event type, where the event type can either be the
-    * string name of an event or an event constructor.
-    *
-    * When the eventType parameter is omitted, the method will check for a handler against any event type.
-    *
-    * @param {String|Function} [eventType]
-    */
-   Subscribable.prototype.hasListener = function(eventType) {
-      return false;
-   };
-
-   /**
-    * Fires the named event with any arguments used as the call to fire.
-    *
-    * @param {String} eventName
-    */
-   Subscribable.fire = function(eventName) {
-      var i, l,
-         returnValue,
-         args,
-         handler,
-         handlerIds;
-
-      if(typeof eventName == 'object') {
-         args = [eventName];
-         eventName = eventName.constructor.toString();
-      }
-
-      handlerIds = Subscribable._getHandlersList(this, eventName, false);
-
-      if(handlerIds && handlerIds.length) {
-         args = args || Array.prototype.slice.call(arguments, 1);
-         for(i = 0, l = handlerIds.length; i < l && returnValue !== false; i++) {
-            if(handler = this.__handlers[handlerIds[i]]) {
-               returnValue = handler[0].apply(handler[1], args);
-            }
-         }
-         return returnValue !== false;
-      }
-
-      return true;
-   };
-
-   /**
-    * Gets the list of handler IDs for the supplied event name in the Subscribable instance. When
-    * the create parameter is set to true and the event has not yet been set up in the Subscribable
-    * it will be created.
-    *
-    * @param {Subscribable} instance
-    * @param {String} eventName
-    * @param {Boolean} create
-    * @return {Number[]}
-    */
-   Subscribable._getHandlersList = function(instance, eventName, create) {
-      eventName = ('' + eventName).toLowerCase();
-      if(!instance.__events[eventName] && create) {
-         instance.__events[eventName] = [];
-      }
-      return instance.__events[eventName];
-   };
-
-   /**
-    * Attaches the supplied handler/scope as a listener in the supplied event list.
-    *
-    * @param {Function} handler
-    * @param {Object} scope
-    * @param {Number[]} eventList
-    * @param {String} eventName
-    */
-   Subscribable._saveHandler = function(instance, handler, scope, eventList, eventName) {
-      var handlerId = instance.__handlers.length;
-      instance.__handlers.push( [handler, scope, handlerId, eventName] );
-      eventList.push(handlerId);
-
-      return handlerId;
-   };
-
-   /**
-    * Attaches the supplied handler and scope as a listener for the supplied event name. The return value is
-    * the numerical ID of the handler that has been added to allow for removal of a single event handler in the
-    * "un" method.
-    *
-    * @param {String} eventName
-    * @param {Function} handler
-    * @param {Object} scope
-    * @return {Number}
-    */
-   Subscribable.on = function(eventName, handler, scope) {
-      return Subscribable._saveHandler(this, handler, scope, Subscribable._getHandlersList(this, eventName, true), String(eventName).toLowerCase());
-   };
-
-   /**
-    * Remove handlers for the specified selector - the selector type can either be a number (which is the ID of a single
-    * handler and is the result of using the .on method), a string event name (which is the same string used as the event
-    * name in the .on method), the Function constructor of an event object (that has a .toString method to return the
-    * name of the associated event) or an object that is the scope of a handler (in which case, any handler for any
-    * event that uses that object as the scope will be removed).
-    *
-    * @param {Object|String|Number|Function} un
-    * @param {Object} [scopeCheck]
-    */
-   Subscribable.un = function(un, scopeCheck) {
-      var typeofRemoval = typeof un;
-      switch(typeofRemoval) {
-         case 'number':
-            un = Subscribable.removeSingleEvent(this, un, scopeCheck);
-            if(!this.hasListener(un)) {
-               Subscribable.consolidateEvents(this, un);
-            }
-            break;
-
-         case 'string':
-         case 'function':
-            un = ('' + un).toLowerCase();
-            Subscribable.removeMultipleEvents(this, Subscribable._getHandlersList(this, un, false), scopeCheck);
-            if(scopeCheck) {
-               Subscribable.consolidateEvents(this, un);
-            }
-            break;
-
-         default:
-            if(un || scopeCheck) {
-               Subscribable.removeMultipleHandlers(this, this.__handlers, un || scopeCheck || null);
-               Subscribable.consolidateEvents(this);
-            }
-            else {
-               this.__handlers = [];
-               this.__events = {};
-            }
-            break;
-      }
-   };
-
-   /**
-    * Consolidates the handler IDs registered for the supplied named event; when the event name is not specified
-    * all event containers will be consolidated.
-    *
-    * @param {Subscribable} instance
-    * @param {String} [eventName]
-    */
-   Subscribable.consolidateEvents = function(instance, eventName) {
-      if(arguments.length === 1) {
-         for(eventName in instance.__events) {
-            Subscribable.consolidateEvents(instance, eventName);
-         }
-      }
-
-      var handlerList = instance.__events[eventName];
-
-      if(handlerList && handlerList.length) {
-         for(var i = handlerList.length - 1; i >= 0; i--) {
-            if(!instance.__handlers[handlerList[i]]) {
-               handlerList.splice(i,1);
-            }
-         }
-      }
-
-      if(handlerList && !handlerList.length) {
-         delete instance.__events[eventName];
-      }
-
-      var handlers = instance.__handlers;
-      while(handlers.length && !handlers[handlers.length - 1]) {
-         handlers.pop();
-      }
-   };
-
-   /**
-    * Attempts to nullify the handler with the supplied list of handler IDs in the Subscribable instance. If the
-    * optional scopeCheck parameter is supplied, each handler will only be nullified when the scope it was attached
-    * with is the same entity as the scopeCheck.
-    *
-    * @param {Subscribable} instance
-    * @param {Number[]} handlerList
-    * @param {Object} [scopeCheck]
-    */
-   Subscribable.removeMultipleEvents = function(instance, handlerList, scopeCheck) {
-      for(var i = 0, l = handlerList.length; i < l; i++) {
-         Subscribable.removeSingleEvent(instance, handlerList[i], scopeCheck);
-      }
-   };
-
-   /**
-    * Attempts to nullify the supplied handlers (note that in this case the handler array is the list of actual handlers
-    * rather than their handler ID values). If the optional scopeCheck parameter is supplied, each handler will only be
-    * nullified when the scope it was attached with the same entity as the scopeCheck.
-    *
-    * @param {Subscribable} instance
-    * @param {Object[]} handlers
-    * @param {Object} [scopeCheck]
-    */
-   Subscribable.removeMultipleHandlers = function(instance, handlers, scopeCheck) {
-      var handler;
-      for(var i = 0, l = handlers.length; i < l; i++) {
-         if(handler = handlers[i]) {
-            Subscribable.removeSingleEvent(instance, handler[2], scopeCheck);
-         }
-      }
-   };
-
-   /**
-    * Attempts to nullify the handler with the supplied handler ID in the Subscribable instance. If the optional
-    * scopeCheck parameter is supplied, the handler will only be nullified when the scope it was attached with is
-    * the same entity as the scopeCheck.
-    *
-    * @param {Subscribable} instance
-    * @param {Number} handlerId
-    * @param {Object} [scopeCheck]
-    */
-   Subscribable.removeSingleEvent = function(instance, handlerId, scopeCheck) {
-      var handler;
-      if(instance.__handlers[handlerId]) {
-         if(!scopeCheck || instance.__handlers[handlerId][1] === scopeCheck) {
-            handler = instance.__handlers[handlerId];
-            instance.__handlers[handlerId] = null;
-         }
-      }
-      return handler && handler[3];
-   };
-
-   /**
-    *
-    * @param {String|Function} [eventType]
-    */
-   Subscribable.hasListener = function(eventType) {
-      var handlers, handlerIds, i, l;
-
-      if(eventType === undefined) {
-         handlers = this.__handlers;
-         for(i = 0, l = handlers.length; i < l; i++) {
-            if(!!handlers[i]) {
-               return true;
-            }
-         }
-      }
-
-      else if(handlerIds = this.__events[('' + eventType).toLowerCase()]) {
-         for(i = 0, l = handlerIds.length; i < l; i++) {
-            if(this.__handlers[handlerIds[i]]) {
-               return true;
-            }
-         }
-      }
-
-      return false;
    };
 
    return Subscribable;

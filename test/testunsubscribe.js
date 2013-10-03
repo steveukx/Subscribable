@@ -4,7 +4,7 @@ var Assertions = require('unit-test').Assertions,
 
 module.exports = new TestCase("RemoveHandlers", {
 
-   "test trailing handlers consolidated on unsubscribe": function() {
+   "x test trailing handlers consolidated on unsubscribe": function() {
       var sub = new Subscribable();
       Assertions.assertEquals(0, sub.on('foo', Sinon.spy()));
       Assertions.assertEquals(1, sub.on('foo', Sinon.spy()));
@@ -18,7 +18,7 @@ module.exports = new TestCase("RemoveHandlers", {
       Assertions.assertEquals(0, sub.on('foo', Sinon.spy()));
    },
 
-   "test handlers consolidated when removing single handler if no events remain": function() {
+   "x test handlers consolidated when removing single handler if no events remain": function() {
       var sub = new Subscribable();
       Assertions.assertEquals(0, sub.on('foo', Sinon.spy()));
 
@@ -26,7 +26,7 @@ module.exports = new TestCase("RemoveHandlers", {
       Assertions.assertEquals(0, sub.on('foo', Sinon.spy()));
    },
 
-   "test handlers not consolidated when removing single handler if other events remain": function() {
+   "x test handlers not consolidated when removing single handler if other events remain": function() {
       var sub = new Subscribable();
       Assertions.assertEquals(0, sub.on('foo', Sinon.spy()));
       Assertions.assertEquals(1, sub.on('foo', Sinon.spy()));
@@ -35,9 +35,9 @@ module.exports = new TestCase("RemoveHandlers", {
       Assertions.assertEquals(2, sub.on('foo', Sinon.spy()));
    },
 
-   "test able to unsubscribe a single handler":function () {
+   "x test able to unsubscribe a single handler":function () {
       var sub = new Subscribable(),
-         handler = Sinon.spy( function() {} ),
+         handler = Sinon.spy(),
          handlerId = sub.on(SomeNamedEvent, handler);
 
       sub.fire(new SomeNamedEvent());
@@ -63,7 +63,7 @@ module.exports = new TestCase("RemoveHandlers", {
       Assertions.assertEquals(2, handler.callCount);
    },
 
-   "test able to unsubscribe by event id leaves others intact":function () {
+   "x test able to unsubscribe by event id leaves others intact":function () {
       var sub = new Subscribable(),
          handler1 = Sinon.spy( function() {} ),
          handler2 = Sinon.spy( function() {} ),

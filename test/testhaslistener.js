@@ -40,17 +40,20 @@ module.exports = new TestCase("HasListener", {
 
    "test falsey event names are treated as real events": function () {
       var sub = new Subscribable();
+      var spies = [];
 
-      var handlerA = sub.on(false, function() {}),
-          handlerB = sub.on(null, function() {});
+      sub.on(false, spies[spies.length] = Sinon.spy());
+      sub.on(null, spies[spies.length] = Sinon.spy());
 
       Assertions.assertEquals(true, sub.hasListener());
       Assertions.assertEquals(true, sub.hasListener(false));
+      Assertions.assertEquals(true, sub.hasListener(null));
 
-      sub.un(handlerA);
+      sub.un(spies[0]);
 
       Assertions.assertEquals(true, sub.hasListener());
       Assertions.assertEquals(false, sub.hasListener(false));
+      Assertions.assertEquals(true, sub.hasListener(null));
    }
 
 });
