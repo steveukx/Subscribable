@@ -77,7 +77,7 @@
       for(var i = 0, l = handlers.length; i < l; i++) {
          var exit = (handlers[i][0].apply(handlers[i][1] || this, eventData) === false);
          if(handlers[i][2]) {
-            this.un(event, handlers[i][0], handlers[i][1]);
+            this.un(eventName, handlers[i][0], handlers[i][1]);
          }
          if(exit) {
             break;
@@ -111,7 +111,7 @@
     * @param {Object} [scope] Optional context scope for the handler to be run in
     */
    Subscribable.once = function(event, handler, scope) {
-      return this.on(event, handler, scope, false);
+      return this.on(event, handler, scope, true);
    };
 
    /**
@@ -243,6 +243,7 @@
    Subscribable.prepareInstance = function(subscribable) {
       subscribable.__events = {};
       subscribable.on = Subscribable.on;
+      subscribable.once = Subscribable.once;
       subscribable.un = Subscribable.un;
       subscribable.fire = Subscribable.fire;
       subscribable.hasListener = Subscribable.hasListener;

@@ -18,6 +18,29 @@ which can be loaded either as the `src` of a `script` tag, or as a module using 
 Objects are made subscribable either by inheriting from the Subscribable prototype or by explicitly calling
 `Subscribable.prepareInstance` for the object to attach the standard pub-sub methods to the object instance.
 
+Whether inheriting from the Subscribable prototype or using Subscribable as a mixin (see below), the subscribable
+gains five functions:
+
+`.on( eventName, handlerFunction, handlerContext, callOnce )` where the `eventName` parameter can either be a string
+event name, or can be the constructor of an Event class. `callOnce` is optional and defaults to `false`, when set to
+true the handler will automatically be removed after it is called once.
+
+`.once( eventName, handlerFunction, handlerContext )` equivalent to calling `.on` with the `callOnce` parameter set
+to `true`.
+
+`.un( eventName, handlerFunction, handlerContext )` any and all of the arguments are optional, for more examples of how
+to unsubscribe a handler check out the [source](//github.com/steveukx/Subscribable/blob/master/src/subscribable.js).
+
+`.fire( eventName, args... )` fires an event to any handlers attached, `eventName` should be a string event name, all
+ handlers will be called with the additional arguments sent to the `fire` function.
+
+`.fire( eventInstance )` fires an event instance to any handlers attached for the constructor of the instance, all
+handlers will be called with just the event instance.
+
+`.hasListener( eventName )` where `eventName` is a string event name or the constructor of an Event class. When called
+without arguments, checks for the existence of any handlers regardless of the event they are attached to.
+
+
 Inheritance:
 
     function SomePubSubClass() {
@@ -28,8 +51,7 @@ Inheritance:
        this.fire('data', msg);
     };
 
-    somePubSubClass = new SomePubSubClass();
-    somePubSubClass.on('data', function(data) {
+    somePubSubClass = new SomePubSubClass().on('data', function(data) {
        alert(data);
     });
 
@@ -49,8 +71,7 @@ If it is not convenient to use inheritance, any object can be made a Subscribabl
        this.fire('data', msg);
     };
 
-    somePubSubClass = new SomePubSubClass();
-    somePubSubClass.on('data', function(data) {
+    somePubSubClass = new SomePubSubClass().on('data', function(data) {
        alert(data);
     });
 
@@ -117,7 +138,7 @@ be seen by any handler that executes later.
 
 Each handler is added using a separate call to the `.on()` method, supplying either the name of the event being
 subscribed to or the constructor of an event object. The handlerScope is optional and when omitted the handlerFunction
-will be executed in the scope of window.
+will be executed in the context of the subscribable itself.
 
 While it is possible to use the `Function.prototype.bind` method from ECMA5 to set the scope of the handlerFunction
 explicitly, supplying the scope in the `.on()` method allows the removal of handlers based on the scope of the handler -

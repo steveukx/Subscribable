@@ -142,6 +142,25 @@ module.exports = new TestCase("RemoveHandlers", {
 
       // fails:
       Assertions.assertEquals(2, subscriber2.callback.callCount, "Subscriber 2's callback should have been triggered once more");
+   },
+
+   'test automatically removes single use handlers': function() {
+      var spies = [];
+
+      var sub = new Subscribable()
+                      .on('foo', spies[spies.length] = Sinon.spy())
+                      .once('foo', spies[spies.length] = Sinon.spy())
+                      .on('foo', spies[spies.length] = Sinon.spy(), null, true)
+                      .on('foo', spies[spies.length] = Sinon.spy(), null, false);
+
+      sub.fire('foo', 'bar');
+      Assertions.assertEquals(4, spies.filter(function(spy) { return spy.callCount === 1; }).length);
+
+      sub.fire('foo', 'bar');
+      Assertions.assertEquals(2, spies[0].callCount);
+      Assertions.assertEquals(1, spies[1].callCount);
+      Assertions.assertEquals(1, spies[2].callCount);
+      Assertions.assertEquals(2, spies[3].callCount);
    }
 
 });
