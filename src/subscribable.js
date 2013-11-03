@@ -72,7 +72,7 @@
       var typeOfEvent = typeof event;
       var eventName = String(event && typeOfEvent === 'object' ? event.constructor : event).toLowerCase();
       var handlers = (this.__events[eventName] || []).slice(0);
-      var eventData = handlers.length ? (typeOfEvent === 'string' ? [].slice.call(arguments, 1) : event) : null;
+      var eventData = handlers.length ? (typeOfEvent === 'string' ? [].slice.call(arguments, 1) : [event]) : null;
 
       for(var i = 0, l = handlers.length; i < l; i++) {
          var exit = (handlers[i][0].apply(handlers[i][1] || this, eventData) === false);
